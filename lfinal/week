@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compact Drawing App</title>
+    <style>
+        /* Main Page Styling */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+
+        h2 { margin: 5px 0; font-size: 1.2rem; }
+
+        /* Compact Controls Box */
+        .controls {
+            background: white;
+            padding: 8px;
+            border-radius: 10px;
+            display: inline-flex;
+            flex-wrap: wrap; /* Mobile par items khud ba khud adjust honge */
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            max-width: 95%; /* Screen se bahar nahi jayega */
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        input[type="color"] {
+            width: 30px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            width: 80px; /* Slider chota rakha hai */
+        }
+
+        #clearBtn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Canvas Styling */
+        canvas {
+            background: white;
+            border: 1px solid #ccc;
+            display: block;
+            margin: 0 auto;
+            touch-action: none; /* Mobile scroll masla nahi karega drawing ke waqt */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Drawing App</h2>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Color:</label>
+            <input type="color" id="colorPicker" value="#000000">
+        </div>
+        
+        <div class="control-group">
+            <label>Size:</label>
+            <input type="range" id="sizeSlider" min="1" max="20" value="5">
+        </div>
+
+        <button id="clearBtn">Clear</button>
+    </div>
+
+    <canvas id="paintCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const sizeSlider = document.getElementById('sizeSlider');
+        const clearBtn = document.getElementById('clearBtn');
+
+        // Canvas size ko screen ke mutabiq set karna
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.95;
+            canvas.height = window.innerHeight * 0.6;
+        }
+        resizeCanvas();
+
+        let painting = false;
+
+        function startPosition(e) {
+            painting = true;
+            draw(e);
+        }
+
+        function finishedPosition() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!painting) return;
+
+            // Mouse ya Touch coordinates handle karna
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+            ctx.lineWidth = sizeSlider.value;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = colorPicker.value;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Event Listeners for Mouse
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', finishedPosition);
+        canvas.addEventListener('mousemove', draw);
+
+        // Event Listeners for Touch (Mobile support)
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPosition(e); });
+        canvas.addEventListener('touchend', finishedPosition);
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+
+        // Clear Screen
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+    </script>
+</body>
+</html>
