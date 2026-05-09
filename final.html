@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Drawing App</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    canvas {
+      border: 2px solid #333;
+      background: white;
+      cursor: crosshair;
+    }
+
+    .controls {
+      margin: 10px;
+    }
+
+    button, input {
+      margin: 5px;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🎨 Simple Canvas Drawing App</h2>
+
+<div class="controls">
+  <label>Color: </label>
+  <input type="color" id="colorPicker" value="#000000">
+
+  <label>Brush Size: </label>
+  <input type="range" id="brushSize" min="1" max="20" value="3">
+
+  <button onclick="clearCanvas()">Clear</button>
+</div>
+
+<canvas id="canvas" width="800" height="400"></canvas>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  let painting = false;
+  let color = document.getElementById("colorPicker").value;
+  let brushSize = document.getElementById("brushSize").value;
+
+  // Start drawing
+  canvas.addEventListener("mousedown", (e) => {
+    painting = true;
+    draw(e);
+  });
+
+  // Stop drawing
+  canvas.addEventListener("mouseup", () => {
+    painting = false;
+    ctx.beginPath();
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    painting = false;
+    ctx.beginPath();
+  });
+
+  // Draw
+  canvas.addEventListener("mousemove", draw);
+
+  function draw(e) {
+    if (!painting) return;
+
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = color;
+
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  }
+
+  // Change color
+  document.getElementById("colorPicker").addEventListener("change", (e) => {
+    color = e.target.value;
+  });
+
+  // Change brush size
+  document.getElementById("brushSize").addEventListener("input", (e) => {
+    brushSize = e.target.value;
+  });
+
+  // Clear canvas
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
+
+</body>
+</html>
